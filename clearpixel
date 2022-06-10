@@ -11,43 +11,43 @@ DOWNSCALE_RATE=100
 while [ $# -gt 0 ]
 do
 	case $1 in
-		-i)
+		-i|--input)
 			shift
 			INPUT_FILE="$1"
 			shift
 			;;
 
-		-o)
+		-o|--output)
 			shift
 			OUTPUT_FILE="$1"
 			shift
 			;;
 
-		-d)
+		-d|--downscale)
 			shift
 			DOWNSCALE_RATE=$1
 			shift
 			;;
 
-		-u)
+		-u|--upscale)
 			shift
 			UPSCALE_RATE=$1
 			shift
 			;;
 
-		-n)
+		-n|--noise)
 			shift
 			DENOISE_RATE=$1
 			shift
 			;;
 
-		-s)
+		-s|--sharpen)
 			shift
 			SHARPEN_SIGMA=$1
 			shift
 			;;
 
-		-p)
+		-p|--preview)
 			shift
 			PREVIEW=true
 			;;
