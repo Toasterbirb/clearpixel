@@ -44,7 +44,7 @@ convert -size 25% ./lain_waifu2x.jpg ./lain_waifu2x.jpg
 ![Waifu2x only](./example/lain_waifu2x.jpg)
 
 ### Clearpixel
-50% downscale and upscale after that + sharpening on top
+Downscale to 25% of the original resolution and upscale after that + sharpening on top
 ```
 clearpixel -u 4 -n 3 -d 25% -s 3 -i ./lain.jpg -o ./lain_clearpixel.jpg
 ```
