@@ -1,0 +1,148 @@
+#!/bin/sh
+
+UPSCALE_RATE=2 # Upscale 2x by default
+DENOISE_RATE=1 # Denoise level 1 by default
+
+# Don't downscale by default. Downscaling before upscaling can sometimes
+# help with low quality pictures with proportionally high resolution.
+DOWNSCALE_RATE=0
+
+# Go trough the arguments
+while [ $# -gt 0 ]
+do
+	case $1 in
+		-i)
+			shift
+			INPUT_FILE="$1"
+			shift
+			;;
+
+		-o)
+			shift
+			OUTPUT_FILE="$1"
+			shift
+			;;
+
+		-d)
+			shift
+			DOWNSCALE_RATE=$1
+			shift
+			;;
+
+		-u)
+			shift
+			UPSCALE_RATE=$1
+			shift
+			;;
+
+		-n)
+			shift
+			DENOISE_RATE=$1
+			shift
+			;;
+
+		-s)
+			shift
+			SHARPEN_SIGMA=$1
+			shift
+			;;
+
+		-p)
+			shift
+			PREVIEW=true
+			;;
+
+		-h|--help)
+			shift
+
+			# Print out help stuff
+			echo "Usage: $(basename $0) [options] -i INPUT_FILE -o OUTPUT_FILE
+
+Options:
+  -i input-file 	Path to the image file that needs processing
+  -o output-file 	Output image path
+  -d downscale-rate 	Downscale the picture before upscaling by a percentage.
+  			Can help with pictures that are low in quality proportional
+			to the resolution. (0% - 100%, default = 100%)
+			Ex. 95% would downscale the picture to 95% of the original resolution
+  -u upscale-rate 	Upscale ratio. (1 - 32, default = 2)
+  -n denoise-rate 	Denoising rate. (-1 - 3, default = 1)
+  -s sharpen-sigma 	Denoising rate. High values can take ages to process (0 - infinity, default = 2)
+  -p 			Output a preview picture instead of the final result.
+  			The preview version will be half original and half upscaled
+  -h | --help 		Prints out this text block you are reading right now"
+
+			exit 0
+			;;
+
+		*)
+			echo "Invalid argument $1"
+			shift
+			;;
+	esac
+done
+
+# Make sure that all required arguments were given
+[ -z $INPUT_FILE ] && echo "ERROR: Input file required" && exit 1
+[ -z $OUTPUT_FILE ] && echo "ERROR: Output file required" && exit 1
+
+# Create a temporary directory
+TEMPDIR=$(mktemp -d)
+
+# Get the basename of the input file
+FILE_NAME=$(basename "$INPUT_FILE")
+
+# Downscale the picture using imagemagick (if enabled)
+if [ "$DOWNSCALE_RATE" != "0" ]
+then
+	echo "Downscaling by $DOWNSCALE_RATE..."
+	convert -scale "$DOWNSCALE_RATE" "$INPUT_FILE" "$TEMPDIR/downscaled.png"
+fi
+
+# Upscale the picture using waifu2x-ncnn-vulkan
+echo "Upscaling by ${UPSCALE_RATE}x..."
+if [ "$DOWNSCALE_RATE" != "0" ]
+then
+	waifu2x-ncnn-vulkan -s $UPSCALE_RATE -n $DENOISE_RATE -i "$TEMPDIR/downscaled.png" -o "$TEMPDIR/upscaled.png"
+else
+	waifu2x-ncnn-vulkan -s $UPSCALE_RATE -n $DENOISE_RATE -i "$INPUT_FILE" -o "$TEMPDIR/upscaled.png"
+fi
+
+# Sharpen the upscaled picture with iamgemagick
+echo "Sharpening the picture..."
+convert -adaptive-sharpen 0x${SHARPEN_SIGMA} "$TEMPDIR/upscaled.png" "$TEMPDIR/sharpened.png"
+
+# Move the final result
+if [ "$PREVIEW" != "true" ]
+then
+	# Move with convert to make sure that the resulting image format is correct
+	convert "$TEMPDIR/sharpened.png" "$OUTPUT_FILE"
+else
+	# Create a preview version
+	echo "Cropping the pictures to create the preview version..."
+
+	# Get the width of the original picture and divide it by 2
+	ORIG_WIDTH=$(mediainfo "$INPUT_FILE" | awk -F ":" '/^Width/ {print $2}' | sed 's/[[:space:]]//g; s/pixels//g')
+	ORIG_HEIGHT=$(mediainfo "$INPUT_FILE" | awk -F ":" '/^Height/ {print $2}' | sed 's/[[:space:]]//g; s/pixels//g')
+	HALF_WIDTH=$(echo "$ORIG_WIDTH / 2" | bc)
+
+	# Create a cropped version of the original picture
+	convert -crop ${HALF_WIDTH}x${ORIG_HEIGHT} "$INPUT_FILE" "$TEMPDIR/orig_cropped.png"
+
+	# Calculate the dimensions for the upscaled picture
+	UPSCALED_WIDTH=$(echo "$HALF_WIDTH * $UPSCALE_RATE" | bc)
+	UPSCALED_HEIGHT=$(echo "$ORIG_HEIGHT * $UPSCALE_RATE" | bc) # Use the halved value for the width to avoid unnecessary maths
+
+	# Crop the upscaled version
+	convert -crop ${UPSCALED_WIDTH}x${UPSCALED_HEIGHT} "$TEMPDIR/sharpened.png" "$TEMPDIR/upscaled_cropped.png"
+
+	# Rescale the original picture so that it is the same size as the upscaled one
+	convert -scale ${UPSCALE_RATE}00% "$TEMPDIR/orig_cropped-0.png" "$TEMPDIR/orig_rescaled.png"
+
+	# Combine the two pictures and move it to the output location
+	convert +append "$TEMPDIR/orig_rescaled.png" "$TEMPDIR/upscaled_cropped-1.png" "$OUTPUT_FILE"
+fi
+
+# Remove the temporary directory
+echo "Cleaning up..."
+rm -r $TEMPDIR
