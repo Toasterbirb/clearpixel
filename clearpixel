@@ -140,13 +140,6 @@ else
 	# Rescale the original picture so that it is the same size as the upscaled one
 	convert -scale ${SCALE_RATE}00% "$TEMPDIR/orig_cropped-0.png" "$TEMPDIR/orig_rescaled.png"
 
-	echo "ORIG_HEIGHT: $ORIG_HEIGHT"
-	echo "ORIG_WIDTH: $ORIG_WIDTH"
-	echo "UPSCALED_WIDTH: $UPSCALED_WIDTH"
-	echo "UPSCALED_HEIGHT: $UPSCALED_HEIGHT"
-	sxiv $TEMPDIR/upscaled_cropped-1.png
-	sxiv $TEMPDIR/orig_rescaled.png
-
 	# Combine the two pictures and move it to the output location
 	convert +append "$TEMPDIR/orig_rescaled.png" "$TEMPDIR/upscaled_cropped-1.png" "$OUTPUT_FILE"
 fi

@@ -31,3 +31,20 @@ Options:
 Clearpixel itself doesn't do anything special. It merely combines imagemagick and waifu2x.
 
 I often found myself downscaling pictures before upscaling them, because that somehow resulted in better results with low qulity high resolution pictures. After doing that enough times, it just made sense to automate the whole process to save myself some time. As a cherry on top, clearpixel also does sharpening and has an option to create a preview picture that you can use to see if the quality even improved at all.
+
+## Demonstration
+### Original
+![Original picture](./example/lain.jpg)
+
+### Waifu2x only
+`waifu2x-ncnn-vulkan -s 4 -n 3 -i ./lain.jpg -o ./lain_waifu2x.jpg` + `convert -size 25% ./lain_waifu2x.jpg ./lain_waifu2x.jpg`
+![Waifu2x only](./example/lain_waifu2x.jpg)
+
+### Clearpixel
+50% downscale and upscale after that + sharpening on top
+`clearpixel -u 4 -n 3 -d 25% -s 3 -i ./lain.jpg -o ./lain_clearpixel.jpg`
+![Clearpixel](./example/lain_clearpixel.jpg)
+
+### Clearpixel preview mode
+`clearpixel -p -u 4 -n 3 -d 25% -s 3 -i ./lain.jpg -o ./lain_clearpixel_preview.jpg`
+![Clearpixel preview](./example/lain_clearpixel_preview.jpg)
