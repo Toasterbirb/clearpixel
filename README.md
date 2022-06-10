@@ -30,7 +30,7 @@ Options:
 ## How is this different from Waifu2x etc.?
 Clearpixel itself doesn't do anything special. It merely combines imagemagick and waifu2x.
 
-I often found myself downscaling pictures before upscaling them, because that somehow resulted in better results with low qulity high resolution pictures. After doing that enough times, it just made sense to automate the whole process to save myself some time. As a cherry on top, clearpixel also does sharpening and has an option to create a preview picture that you can use to see if the quality even improved at all.
+I often found myself downscaling pictures before upscaling them, because that somehow resulted in better results with low quality high resolution pictures. After doing that enough times, it just made sense to automate the whole process to save myself some time. As a cherry on top, clearpixel also does sharpening and has an option to create a preview picture that you can use to see if the quality even improved at all.
 
 ## Demonstration
 ### Original
