@@ -5,7 +5,7 @@ DENOISE_RATE=1 # Denoise level 1 by default
 
 # Don't downscale by default. Downscaling before upscaling can sometimes
 # help with low quality pictures with proportionally high resolution.
-DOWNSCALE_RATE=0
+DOWNSCALE_RATE=100
 
 # Go trough the arguments
 while [ $# -gt 0 ]
@@ -93,7 +93,7 @@ TEMPDIR=$(mktemp -d)
 FILE_NAME=$(basename "$INPUT_FILE")
 
 # Downscale the picture using imagemagick (if enabled)
-if [ "$DOWNSCALE_RATE" != "0" ]
+if [ "$DOWNSCALE_RATE" != "100" ]
 then
 	echo "Downscaling by $DOWNSCALE_RATE..."
 	convert -scale "$DOWNSCALE_RATE" "$INPUT_FILE" "$TEMPDIR/downscaled.png"
@@ -101,7 +101,7 @@ fi
 
 # Upscale the picture using waifu2x-ncnn-vulkan
 echo "Upscaling by ${UPSCALE_RATE}x..."
-if [ "$DOWNSCALE_RATE" != "0" ]
+if [ "$DOWNSCALE_RATE" != "100" ]
 then
 	waifu2x-ncnn-vulkan -s $UPSCALE_RATE -n $DENOISE_RATE -i "$TEMPDIR/downscaled.png" -o "$TEMPDIR/upscaled.png"
 else
@@ -130,14 +130,22 @@ else
 	convert -crop ${HALF_WIDTH}x${ORIG_HEIGHT} "$INPUT_FILE" "$TEMPDIR/orig_cropped.png"
 
 	# Calculate the dimensions for the upscaled picture
-	UPSCALED_WIDTH=$(echo "$HALF_WIDTH * $UPSCALE_RATE" | bc)
-	UPSCALED_HEIGHT=$(echo "$ORIG_HEIGHT * $UPSCALE_RATE" | bc) # Use the halved value for the width to avoid unnecessary maths
+	SCALE_RATE=$(echo "$UPSCALE_RATE * ($(echo $DOWNSCALE_RATE | sed 's/%//') / 100.0)" | bc -l | cut -d'.' -f1)
+	UPSCALED_WIDTH=$(echo "$HALF_WIDTH * $SCALE_RATE" | bc)
+	UPSCALED_HEIGHT=$(echo "$ORIG_HEIGHT * $SCALE_RATE" | bc) # Use the halved value for the width to avoid unnecessary maths
 
 	# Crop the upscaled version
 	convert -crop ${UPSCALED_WIDTH}x${UPSCALED_HEIGHT} "$TEMPDIR/sharpened.png" "$TEMPDIR/upscaled_cropped.png"
 
 	# Rescale the original picture so that it is the same size as the upscaled one
-	convert -scale ${UPSCALE_RATE}00% "$TEMPDIR/orig_cropped-0.png" "$TEMPDIR/orig_rescaled.png"
+	convert -scale ${SCALE_RATE}00% "$TEMPDIR/orig_cropped-0.png" "$TEMPDIR/orig_rescaled.png"
+
+	echo "ORIG_HEIGHT: $ORIG_HEIGHT"
+	echo "ORIG_WIDTH: $ORIG_WIDTH"
+	echo "UPSCALED_WIDTH: $UPSCALED_WIDTH"
+	echo "UPSCALED_HEIGHT: $UPSCALED_HEIGHT"
+	sxiv $TEMPDIR/upscaled_cropped-1.png
+	sxiv $TEMPDIR/orig_rescaled.png
 
 	# Combine the two pictures and move it to the output location
 	convert +append "$TEMPDIR/orig_rescaled.png" "$TEMPDIR/upscaled_cropped-1.png" "$OUTPUT_FILE"
