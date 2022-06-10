@@ -37,14 +37,21 @@ I often found myself downscaling pictures before upscaling them, because that so
 ![Original picture](./example/lain.jpg)
 
 ### Waifu2x only
-`waifu2x-ncnn-vulkan -s 4 -n 3 -i ./lain.jpg -o ./lain_waifu2x.jpg` + `convert -size 25% ./lain_waifu2x.jpg ./lain_waifu2x.jpg`
+```
+waifu2x-ncnn-vulkan -s 4 -n 3 -i ./lain.jpg -o ./lain_waifu2x.jpg
+convert -size 25% ./lain_waifu2x.jpg ./lain_waifu2x.jpg
+```
 ![Waifu2x only](./example/lain_waifu2x.jpg)
 
 ### Clearpixel
 50% downscale and upscale after that + sharpening on top
-`clearpixel -u 4 -n 3 -d 25% -s 3 -i ./lain.jpg -o ./lain_clearpixel.jpg`
+```
+clearpixel -u 4 -n 3 -d 25% -s 3 -i ./lain.jpg -o ./lain_clearpixel.jpg
+```
 ![Clearpixel](./example/lain_clearpixel.jpg)
 
 ### Clearpixel preview mode
-`clearpixel -p -u 4 -n 3 -d 25% -s 3 -i ./lain.jpg -o ./lain_clearpixel_preview.jpg`
+```
+clearpixel -p -u 4 -n 3 -d 25% -s 3 -i ./lain.jpg -o ./lain_clearpixel_preview.jpg
+```
 ![Clearpixel preview](./example/lain_clearpixel_preview.jpg)
