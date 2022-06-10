@@ -1,4 +1,7 @@
 # Clearpixel
+*Downscale, Enhance, Sharpen*
+
+Clearpixel is a script that combines waifu2x with imagemagick to help with upscaling / denoising low quality high resolution pictures.
 
 ## Dependencies
 - waifu2x-ncnn-vulkan
