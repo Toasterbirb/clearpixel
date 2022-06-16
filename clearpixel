@@ -93,8 +93,12 @@ Options:
 done
 
 # Make sure that all required arguments were given
-[ -z $INPUT_FILE ] && echo "ERROR: Input file required" && exit 1
-[ -z $OUTPUT_FILE ] && echo "ERROR: Output file required" && exit 1
+[ -z $INPUT_FILE ] && echo "\033[1;31mERROR:\033[0m Input file required" && exit 1
+[ -z $OUTPUT_FILE ] && echo "\033[1;31mERROR:\033[0m Output file required" && exit 1
+
+# Make sure that the input file exists
+[ -f $INPUT_FILE ] && input_found=yes
+[ -z $input_found ] && echo "\033[1;31mERROR:\033[0m Given input file doesn't exist" && exit 1
 
 # Create a temporary directory
 TEMPDIR=$(mktemp -d)
