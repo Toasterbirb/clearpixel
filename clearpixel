@@ -163,15 +163,18 @@ else
 	convert -crop ${HALF_WIDTH}x${ORIG_HEIGHT} "$INPUT_FILE" "$TEMPDIR/orig_cropped.png"
 
 	# Calculate the dimensions for the upscaled picture
-	SCALE_RATE=$(echo "$UPSCALE_RATE * ($(echo $DOWNSCALE_RATE | sed 's/%//') / 100.0)" | bc -l | cut -d'.' -f1)
+	SCALE_RATE=$(echo "$UPSCALE_RATE * ($(echo $DOWNSCALE_RATE | sed 's/%//') / 100.0)" | bc -l)
 	UPSCALED_WIDTH=$(echo "$HALF_WIDTH * $SCALE_RATE" | bc)
 	UPSCALED_HEIGHT=$(echo "$ORIG_HEIGHT * $SCALE_RATE" | bc) # Use the halved value for the width to avoid unnecessary maths
 
 	# Crop the upscaled version
 	convert -crop ${UPSCALED_WIDTH}x${UPSCALED_HEIGHT} "$TEMPDIR/sharpened.png" "$TEMPDIR/upscaled_cropped.png"
 
+	# Convert the scale rate to percentage value
+	SCALE_RATE=$(echo "$SCALE_RATE * 100" | bc)
+
 	# Rescale the original picture so that it is the same size as the upscaled one
-	convert -scale ${SCALE_RATE}00% "$TEMPDIR/orig_cropped-0.png" "$TEMPDIR/orig_rescaled.png"
+	convert -scale ${SCALE_RATE}% "$TEMPDIR/orig_cropped-0.png" "$TEMPDIR/orig_rescaled.png"
 
 	# Combine the two pictures and move it to the output location
 	convert +append "$TEMPDIR/orig_rescaled.png" "$TEMPDIR/upscaled_cropped-1.png" "$OUTPUT_FILE"
