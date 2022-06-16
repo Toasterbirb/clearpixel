@@ -45,3 +45,8 @@ testcase "Preview picture with downscaling and custom upscale value" "-d 70% -u 
 testcase "Sharpening with custom sigma set" "-ss 3"
 testcase "Sharpening with custom radius set" "-sr 3"
 testcase "Sharpening with custom radius and sigma set" "-ss 3 -sr 3"
+
+echo "================================="
+echo "Test results:"
+echo -e "\e[1;32mPASS:\e[0m $passCount"
+echo -e "\e[1;31mFAIL:\e[0m $failCount"
