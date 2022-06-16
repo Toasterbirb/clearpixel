@@ -23,7 +23,7 @@ function testcase()
 	arguments="$2"
 
 	echo -n "TESTCASE: $message"
-	../clearpixel "${arguments}" -i $img -o $outdir/img_${iterator}.png &>/dev/null && _pass || _fail
+	../clearpixel ${arguments} -i $img -o $outdir/img_${iterator}.png &>>$outdir/log.txt && _pass || _fail
 	let iterator+=1
 }
 
@@ -39,6 +39,8 @@ testcase "Imagemagick enhance with downscaling" "-e -d 75%"
 testcase "Custom upscale amount" "-u 4"
 testcase "Custom upscale amount with downscaling" "-u 4 -d 75%"
 testcase "Custom denoise amount" "-n 2"
-testcase "Sharpening" "3"
 testcase "Preview picture" "-p"
 testcase "Preview picture with downscaling" "-d 75% -p"
+testcase "Sharpening with custom sigma set" "-ss 3"
+testcase "Sharpening with custom radius set" "-sr 3"
+testcase "Sharpening with custom radius and sigma set" "-ss 3 -sr 3"
