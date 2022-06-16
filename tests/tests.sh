@@ -23,7 +23,7 @@ function testcase()
 	arguments="$2"
 
 	echo -n "TESTCASE ${iterator}: $message"
-	../clearpixel ${arguments} -i $img -o $outdir/img_${iterator}.png &>>$outdir/log.txt && _pass || _fail
+	../clearpixel ${arguments} -i $img -o $outdir/img_${iterator}.png &>>$outdir/log_${iterator}.txt && _pass || _fail
 	let iterator+=1
 }
 
