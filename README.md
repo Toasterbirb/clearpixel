@@ -24,7 +24,9 @@ Options:
                         Ex. 95% would downscale the picture to 95% of the original resolution
   -u upscale-rate       Upscale ratio. (1 - 32, default = 2)
   -n denoise-rate       Denoising rate. (-1 - 3, default = 1)
-  -s sharpen-sigma      Denoising rate. High values can take ages to process (0 - infinity, default = 2)
+  -s sharpen-sigma      Sharpening sigma. High values can take ages to process (0 - infinity, default = 2)
+  -e                    Use imagemagick -enhance command to denoise the image after upscaling. Can reduce
+                        image clarity
   -p                    Output a preview picture instead of the final result.
                         The preview version will be half original and half upscaled
   -h | --help           Prints out this text block you are reading right now
