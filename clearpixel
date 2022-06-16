@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 
 UPSCALE_RATE=2 # Upscale 2x by default
 DENOISE_RATE=1 # Denoise level 1 by default
